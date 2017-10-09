@@ -8,6 +8,7 @@ def remove_punc(text):
     text = text.translate(str.maketrans('', '', string.punctuation)).lower()
     return ''.join([char for char in text if not char.isdigit()])
 
+
 def remove_stopwords(text):
     return set(text.words) - set(english_stopwords)
 
@@ -53,6 +54,21 @@ d10 = TextBlob(remove_punc(
 
 bloblist = [d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]
 
+word_set = []
+pmi = {}
+for blob in bloblist:
+    word_set = word_set + list(remove_stopwords(blob))
+word_set = set(word_set)
+for worda in word_set:
+    for wordb in word_set:
+        count = 0
+        for blob in bloblist:
+            if worda != wordb:
+                if worda in remove_stopwords(blob) and wordb in remove_stopwords(blob):
+                    count = count + 1
+        # print(worda, wordb, count)
+        pmi[worda + ' ' + wordb] = count
+print(sorted(pmi.items(), key=lambda x: x[1], reverse=True))
 for i, blob in enumerate(bloblist):
     print("Top words in document {}".format(i + 1))
     scores_tf = {word: tf(word, blob) for word in remove_stopwords(blob)}
@@ -66,4 +82,4 @@ for i, blob in enumerate(bloblist):
     print(sorted_tf)
     print(sorted_idf)
 
-#print(remove_stopwords(d1))
+# print(remove_stopwords(d1))
