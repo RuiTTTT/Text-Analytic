@@ -10,7 +10,7 @@ def remove_punc(text):
 
 
 def remove_stopwords(text):
-    return set(text.words) - set(english_stopwords)
+    return [item for item in text.words if item not in english_stopwords]
 
 
 def tf(word, blob):
@@ -34,9 +34,9 @@ english_stopwords = stopwords.words('english')
 d1 = TextBlob(remove_punc(
     "Most places dry overnight, some mist or fog patches. Some rain or drizzle mainly near North & SouthWest coasts.  Lows 7 to 10 C, in light westerlies."))
 d2 = TextBlob(remove_punc(
-    "Cloudy & misty tonight.Dry weather, but rain / drizzle at times, mainly near SouthWest & North coasts. Lows 7/10 C.,in light West or variable breezes."))
+    "Cloudy & misty tonight. Dry weather, but rain / drizzle at times, mainly near SouthWest & North coasts. Lows 7/10 C.,in light West or variable breezes."))
 d3 = TextBlob(remove_punc(
-    "Dry in many areas this afternoon & evening,but mostly cloudy, outbreaks of rain & drizzle. A few bright spells in places also. Highs 13/16 C"))
+    "Dry in many areas this afternoon & evening, but mostly cloudy, outbreaks of rain & drizzle. A few bright spells in places also. Highs 13/16 C"))
 d4 = TextBlob(remove_punc(
     "Rather cloudy this aft. Dry in many places but there will be some sctd outbreaks of rain, & possibly  more persistent rain in parts of the North"))
 d5 = TextBlob(remove_punc(
@@ -44,7 +44,7 @@ d5 = TextBlob(remove_punc(
 d6 = TextBlob(remove_punc(
     "Mostly cloudy today. Some hazy sunnyspells. Mainly dry. Patchy light rain in far SouthWest this morn & isol patches of drzl near NorthWest coasts.High 13-16 C"))
 d7 = TextBlob(remove_punc(
-    "Mild & breezy overnight.Scattered patches of rain & drzl at times - mainly over Muns, but many areas will stay dry. Lows 9 to 12 degrees."))
+    "Mild & breezy overnight. Scattered patches of rain & drzl at times - mainly over Muns, but many areas will stay dry. Lows 9 to 12 degrees."))
 d8 = TextBlob(remove_punc(
     "Breezy, misty & mostly cloudy this evening & tonight, with patches of rain & drizzle at times. Mild, lowest temperatures 9 to 12 C."))
 d9 = TextBlob(remove_punc(
@@ -56,8 +56,9 @@ bloblist = [d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]
 
 word_set_duplicate = []
 co = {}
-pmi={}
+pmi = {}
 for blob in bloblist:
+    print(remove_stopwords(blob))
     word_set_duplicate = word_set_duplicate + list(remove_stopwords(blob))
 
 word_set = set(word_set_duplicate)
@@ -70,10 +71,11 @@ for worda in word_set:
                     count = count + 1
         if count == 0:
             continue
-        # print(worda, wordb, count)
         co[worda + ' ' + wordb] = count
-        pmi[worda+' '+wordb] = math.log2(count)+math.log2(len(word_set_duplicate))-math.log2(word_set_duplicate.count(worda))-math.log2(word_set_duplicate.count(wordb))
+        pmi[worda + ' ' + wordb] = math.log2(count) + math.log2(len(word_set_duplicate)) - math.log2(
+            word_set_duplicate.count(worda)) - math.log2(word_set_duplicate.count(wordb))
 print(sorted(pmi.items(), key=lambda x: x[1], reverse=True))
+
 for i, blob in enumerate(bloblist):
     print("Top words in document {}".format(i + 1))
     scores_tf = {word: tf(word, blob) for word in remove_stopwords(blob)}
@@ -87,8 +89,7 @@ for i, blob in enumerate(bloblist):
     print(sorted_tf)
     print(sorted_idf)
 
-total_tf={}
+total_tf = {}
 for word in word_set:
     total_tf[word] = word_set_duplicate.count(word)
-print(sorted(total_tf.items(), key=lambda x:x[1], reverse=True))
-# print(remove_stopwords(d1))
+print(sorted(total_tf.items(), key=lambda x: x[1], reverse=True))
