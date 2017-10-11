@@ -14,7 +14,7 @@ def remove_stopwords(text):
 
 
 def tf(word, blob):
-    return blob.words.count(word) / len(remove_stopwords(blob))
+    return blob.words.count(word)
 
 
 def n_occurance(word, bloblist):
@@ -22,7 +22,7 @@ def n_occurance(word, bloblist):
 
 
 def idf(word, bloblist):
-    return math.log(len(bloblist) / (1 + n_occurance(word, bloblist)))
+    return math.log2(len(bloblist) / (1 + n_occurance(word, bloblist)))
 
 
 def tfidf(word, blob, bloblist):
@@ -54,11 +54,13 @@ d10 = TextBlob(remove_punc(
 
 bloblist = [d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]
 
-word_set = []
-pmi = {}
+word_set_duplicate = []
+co = {}
+pmi={}
 for blob in bloblist:
-    word_set = word_set + list(remove_stopwords(blob))
-word_set = set(word_set)
+    word_set_duplicate = word_set_duplicate + list(remove_stopwords(blob))
+
+word_set = set(word_set_duplicate)
 for worda in word_set:
     for wordb in word_set:
         count = 0
@@ -66,8 +68,11 @@ for worda in word_set:
             if worda != wordb:
                 if worda in remove_stopwords(blob) and wordb in remove_stopwords(blob):
                     count = count + 1
+        if count == 0:
+            continue
         # print(worda, wordb, count)
-        pmi[worda + ' ' + wordb] = count
+        co[worda + ' ' + wordb] = count
+        pmi[worda+' '+wordb] = math.log2(count)+math.log2(len(word_set_duplicate))-math.log2(word_set_duplicate.count(worda))-math.log2(word_set_duplicate.count(wordb))
 print(sorted(pmi.items(), key=lambda x: x[1], reverse=True))
 for i, blob in enumerate(bloblist):
     print("Top words in document {}".format(i + 1))
@@ -82,4 +87,8 @@ for i, blob in enumerate(bloblist):
     print(sorted_tf)
     print(sorted_idf)
 
+total_tf={}
+for word in word_set:
+    total_tf[word] = word_set_duplicate.count(word)
+print(sorted(total_tf.items(), key=lambda x:x[1], reverse=True))
 # print(remove_stopwords(d1))
