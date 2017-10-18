@@ -10,7 +10,7 @@ def JaccardIndex(str1, str2):
 def Dice(str1,str2):
     set1 = set(nltk.bigrams(str1.split()))
     set2 = set(nltk.bigrams(str2.split()))
-    ans = 1 - float(len(set1&set2)/(len(set1)+len(set2)))
+    ans = 1 - float(2*len(set1&set2)/(len(set1)+len(set2)))
     return round(ans,2)
 
 
